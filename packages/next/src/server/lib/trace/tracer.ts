@@ -1,5 +1,5 @@
-import type { FetchEventResult } from '../../web/types'
 import type { TextMapSetter } from '@opentelemetry/api'
+import type { FetchEventResult } from '../../web/types'
 import type { SpanTypes } from './constants'
 import { LogSpanAllowList, NextVanillaSpanAllowlist } from './constants'
 
