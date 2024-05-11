@@ -1480,9 +1480,11 @@ export default abstract class Server<
      * prefetch request.
      */
     const isPrefetchRSCRequest =
-      (req.headers[NEXT_ROUTER_PREFETCH_HEADER.toLowerCase()] === '1' ||
-        getRequestMeta(req, 'isPrefetchRSCRequest')) ??
-      false
+      getRequestMeta(req, 'isPrefetchRSCRequest') ?? false
+
+    // NOTE: Don't delete headers[RSC] yet, it still needs to be used in renderToHTML later
+
+    const isRSCRequest = getRequestMeta(req, 'isRSCRequest') ?? false
 
     // when we are handling a middleware prefetch and it doesn't
     // resolve to a static data route we bail early to avoid
@@ -1524,9 +1526,6 @@ export default abstract class Server<
         `${query.__nextLocale ? `/${query.__nextLocale}` : ''}${pathname}`
       )
     }
-
-    // Don't delete headers[RSC] yet, it still needs to be used in renderToHTML later
-    const isRSCRequest = getRequestMeta(req, 'isRSCRequest') ?? false
 
     const { routeModule } = components
 
