@@ -780,8 +780,7 @@ export default abstract class Server<
           this.handleRequestImpl(req, res, parsedUrl).finally(() => {
             if (!span) return
 
-            const isRSCRequest = isRSCRequestCheck(req) ?? false
-
+            const isRSCRequest = getRequestMeta(req, 'isRSCRequest') ?? false
             span.setAttributes({
               'http.status_code': res.statusCode,
               'next.rsc': isRSCRequest,
@@ -1357,7 +1356,7 @@ export default abstract class Server<
     resolvedPathname: string
   ): void {
     const baseVaryHeader = `${RSC_HEADER}, ${NEXT_ROUTER_STATE_TREE}, ${NEXT_ROUTER_PREFETCH_HEADER}`
-    const isRSCRequest = isRSCRequestCheck(req)
+    const isRSCRequest = getRequestMeta(req, 'isRSCRequest')
 
     let addedNextUrlToVary = false
 
@@ -1527,7 +1526,7 @@ export default abstract class Server<
     }
 
     // Don't delete headers[RSC] yet, it still needs to be used in renderToHTML later
-    const isRSCRequest = isRSCRequestCheck(req)
+    const isRSCRequest = getRequestMeta(req, 'isRSCRequest') ?? false
 
     const { routeModule } = components
 
@@ -3172,20 +3171,5 @@ export default abstract class Server<
 
     res.statusCode = 404
     return this.renderError(null, req, res, pathname!, query, setHeaders)
-  }
-}
-
-/**
- * Check if the request is a RSC request. This is only attached after the
- * `handle` method is called, or at least the `requestAdapter.adapt` is called
- * on the request.
- */
-export function isRSCRequestCheck(req: BaseNextRequest): boolean {
-  // In edge, we can just check the header, as it's not set via request
-  // metadata.
-  if (process.env.NEXT_RUNTIME === 'edge') {
-    return req.headers[RSC_HEADER.toLowerCase()] === '1'
-  } else {
-    return getRequestMeta(req, 'isRSCRequest') === true
   }
 }
