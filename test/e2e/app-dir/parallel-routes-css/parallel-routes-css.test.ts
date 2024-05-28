@@ -18,7 +18,7 @@ describe('parallel-routes-catchall-css', () => {
     )
   }
 
-  it('should still render page css even if there is a catchall route', async () => {
+  it('should properly load CSS from multiple leaf segments', async () => {
     const browser = await next.browser('/')
 
     // the page background should be blue

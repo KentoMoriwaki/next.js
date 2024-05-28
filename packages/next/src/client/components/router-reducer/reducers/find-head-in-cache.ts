@@ -45,7 +45,7 @@ function findHeadInCacheImpl(
     )
 
     // if we found a head, add it to the list of discovered head nodes while continuing to search for more
-    if (items.length) {
+    if (items.length > 0) {
       results = results.concat(items)
     }
   }
