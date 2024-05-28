@@ -5,7 +5,7 @@ import { createRouterCacheKey } from '../create-router-cache-key'
 export function findHeadInCache(
   cache: CacheNode,
   parallelRoutes: FlightRouterState[1]
-): [CacheNode, string] | null {
+): [CacheNode, string][] {
   return findHeadInCacheImpl(cache, parallelRoutes, '')
 }
 
@@ -13,12 +13,17 @@ function findHeadInCacheImpl(
   cache: CacheNode,
   parallelRoutes: FlightRouterState[1],
   keyPrefix: string
-): [CacheNode, string] | null {
+): [CacheNode, string][] {
   const isLastItem = Object.keys(parallelRoutes).length === 0
   if (isLastItem) {
     // Returns the entire Cache Node of the segment whose head we will render.
-    return [cache, keyPrefix]
+    return [[cache, keyPrefix]]
   }
+
+  // There can be multiple `head` segments associated with leaf nodes, as each parallel route can define its own head.
+  // This accumulates all of the heads that need to be rendered.
+  let results: [CacheNode, string][] = []
+
   for (const key in parallelRoutes) {
     const [segment, childParallelRoutes] = parallelRoutes[key]
     const childSegmentMap = cache.parallelRoutes.get(key)
@@ -33,15 +38,17 @@ function findHeadInCacheImpl(
       continue
     }
 
-    const item = findHeadInCacheImpl(
+    const items = findHeadInCacheImpl(
       cacheNode,
       childParallelRoutes,
       keyPrefix + '/' + cacheKey
     )
-    if (item) {
-      return item
+
+    // if we found a head, add it to the list of discovered head nodes while continuing to search for more
+    if (items.length) {
+      results = results.concat(items)
     }
   }
 
-  return null
+  return results
 }

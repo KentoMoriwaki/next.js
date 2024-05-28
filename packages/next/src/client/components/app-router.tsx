@@ -639,23 +639,20 @@ function Router({
     }
   }, [buildId, changeByServerResponse, tree, focusAndScrollRef, nextUrl])
 
-  let head
-  if (matchingHead !== null) {
+  const headNodes: React.ReactNode[] = []
+  for (const [headCacheNode, headKey] of matchingHead) {
     // The head is wrapped in an extra component so we can use
     // `useDeferredValue` to swap between the prefetched and final versions of
     // the head. (This is what LayoutRouter does for segment data, too.)
     //
     // The `key` is used to remount the component whenever the head moves to
     // a different segment.
-    const [headCacheNode, headKey] = matchingHead
-    head = <Head key={headKey} headCacheNode={headCacheNode} />
-  } else {
-    head = null
+    headNodes.push(<Head key={headKey} headCacheNode={headCacheNode} />)
   }
 
   let content = (
     <RedirectBoundary>
-      {head}
+      {headNodes}
       {cache.rsc}
       <AppRouterAnnouncer tree={tree} />
     </RedirectBoundary>
